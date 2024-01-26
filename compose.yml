@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  gobuild:
+    image: gobuild
+    user: "${UID}:${GID}"
+    volumes:
+      - .:/work
+    working_dir: /work
