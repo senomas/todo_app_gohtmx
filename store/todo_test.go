@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"log/slog"
 	"os"
 	"strconv"
 	"testing"
@@ -23,6 +24,9 @@ func mustEncode(t *testing.T, v interface{}) string {
 }
 
 func TestTodoStore(t *testing.T) {
+	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	slog.SetDefault(log)
+
 	t.Log("Test TodoStore")
 	todoStore := store.GetTodoStore()
 	assert.NotNil(t, todoStore, "todo store should not be nil")
@@ -99,18 +103,29 @@ func TestTodoStore(t *testing.T) {
 	})
 
 	t.Run("FindTodo", func(t *testing.T) {
-		t.Skip("TODO: Fix this test")
 		ctx, cancel := initCtx()
 		defer cancel()
 
-		todos, total, err := todoStore.FindTodo(ctx, store.TodoFilter{}, 1, 0)
+		todos, total, err := todoStore.FindTodo(ctx, store.TodoFilter{}, 0, 3)
 		assert.NoError(t, err, "todo store find todo should not error")
 		assert.EqualValues(t, total, 10, "total should be equal")
 		assert.EqualValues(t, todos, []*store.Todo{
 			{ID: 1, Title: "Todo 1", Completed: false},
 			{ID: 2, Title: "Todo 2", Completed: false},
 			{ID: 3, Title: "Todo 3", Completed: false},
-			{ID: 4, Title: "Todo 4", Completed: false},
+		}, "todos should be equal")
+	})
+
+	t.Run("FindTodo title like", func(t *testing.T) {
+		ctx, cancel := initCtx()
+		defer cancel()
+
+		todos, total, err := todoStore.FindTodo(ctx, store.TodoFilter{Title: store.FilterString{Value: "%1%", Op: store.OP_LIKE}}, 0, 3)
+		assert.NoError(t, err, "todo store find todo should not error")
+		assert.EqualValues(t, total, 2, "total should be equal")
+		assert.EqualValues(t, todos, []*store.Todo{
+			{ID: 1, Title: "Todo 1", Completed: false},
+			{ID: 10, Title: "Todo 10", Completed: false},
 		}, "todos should be equal")
 	})
 }

@@ -1,9 +1,22 @@
 package store
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+	"log/slog"
+)
 
 type key int
 
 const StoreCtxDB key = iota
 
 var ErrNoData = errors.New("sql: no data")
+
+type JsonLogValue struct {
+	V []any
+}
+
+func (a *JsonLogValue) LogValue() slog.Value {
+	v, _ := json.Marshal(a.V)
+	return slog.StringValue(string(v))
+}

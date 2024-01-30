@@ -16,7 +16,7 @@ func init() {
 
 // InsertTodo implements sql_tmpl.TodoStoreTemplate.
 func (s *TodoStoreTemplateImpl) InsertTodo(t *store.Todo) (string, []any) {
-	return `INSERT INTO todo (title, completed) VALUES ($1, false)`, []any{t.Title}
+	return `INSERT INTO todo (title, completed) VALUES ($1, $2)`, []any{t.Title, t.Completed}
 }
 
 // UpdateTodo implements sql_tmpl.TodoStoreTemplate.
@@ -26,50 +26,12 @@ func (s *TodoStoreTemplateImpl) UpdateTodo(t *store.Todo) (string, []any) {
 
 // DeleteTodoByID implements sql_tmpl.TodoStoreTemplate.
 func (s *TodoStoreTemplateImpl) DeleteTodoByID(id any) (string, []any) {
-	return `DELETE FROM todo WHERE id=?`, []any{id}
+	return `DELETE FROM todo WHERE id = $1`, []any{id}
 }
 
 // GetTodoByID implements sql_tmpl.TodoStoreTemplate.
 func (s *TodoStoreTemplateImpl) GetTodoByID(id any) (string, []any) {
 	return `SELECT id, title, completed FROM todo WHERE id = $1`, []any{id}
-}
-
-func filterToString(where []string, args []any, field string, filter any) ([]string, []any) {
-	switch f := filter.(type) {
-	case store.FilterInt64:
-		switch f.Op {
-		case store.OP_NOP:
-		case store.OP_EQ:
-			args = append(args, f.Value)
-			where = append(where, fmt.Sprintf("%s = $%d", field, len(args)))
-		default:
-			panic(fmt.Sprintf("unknown filter int64 op: %+v", f))
-		}
-	case store.FilterBool:
-		switch f.Op {
-		case store.OP_NOP:
-		case store.OP_EQ:
-			args = append(args, f.Value)
-			where = append(where, fmt.Sprintf("%s = $%d", field, len(args)))
-		default:
-			panic(fmt.Sprintf("unknown filter bool op: %+v", f))
-		}
-	case store.FilterString:
-		switch f.Op {
-		case store.OP_NOP:
-		case store.OP_EQ:
-			args = append(args, f.Value)
-			where = append(where, fmt.Sprintf("%s = $%d", field, len(args)))
-		case store.OP_LIKE:
-			args = append(args, f.Value)
-			where = append(where, fmt.Sprintf("%s LIKE $%d", field, len(args)))
-		default:
-			panic(fmt.Sprintf("unknown filter string op: %+v", f))
-		}
-	default:
-		panic(fmt.Sprintf("unknown filter type: %+v", f))
-	}
-	return where, args
 }
 
 func (s *TodoStoreTemplateImpl) findTodoWhere(filter store.TodoFilter) ([]string, []any) {
@@ -84,8 +46,21 @@ func (s *TodoStoreTemplateImpl) findTodoWhere(filter store.TodoFilter) ([]string
 }
 
 // FindTodo implements sql_tmpl.TodoStoreTemplate.
-func (*TodoStoreTemplateImpl) FindTodo(store.TodoFilter, int64, int) (string, []any) {
-	panic("unimplemented")
+func (s *TodoStoreTemplateImpl) FindTodo(filter store.TodoFilter, skip int64, limit int) (string, []any) {
+	where, args := s.findTodoWhere(filter)
+	sl := ""
+	if limit > 0 {
+		sl += fmt.Sprintf(" LIMIT %d", limit)
+	} else {
+		sl += " LIMIT 1000"
+	}
+	if skip > 0 {
+		sl += fmt.Sprintf(" OFFSET %d", skip)
+	}
+	if len(where) > 0 {
+		return `SELECT id, title, completed FROM todo WHERE ` + strings.Join(where, " AND ") + sl, args
+	}
+	return `SELECT id, title, completed FROM todo` + sl, args
 }
 
 // FindTodoTotal implements sql_tmpl.TodoStoreTemplate.

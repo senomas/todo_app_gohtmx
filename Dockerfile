@@ -21,5 +21,7 @@ USER root
 COPY --chown=user:user . .
 USER user
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN go test -v ./.../ | tee -a /app/test.log
+ARG TS
+RUN echo TEST ${TS} | tee -a /app/test.log && \
+  go test -v ./.../ | tee -a /app/test.log
 # RUN go test -v -failfast ./.../ -run SqlTemplate | tee -a /app/test.log
