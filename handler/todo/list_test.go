@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
 	"testing"
@@ -88,7 +89,7 @@ func TestListHandler(t *testing.T) {
 	})
 
 	t.Run("List title like", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/api/todo?title.like=%253%25", nil)
+		req, err := http.NewRequest("GET", "/api/todo?title.like="+url.QueryEscape("%3%"), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
