@@ -6,15 +6,20 @@ ARG GID=1000
 RUN groupadd -g ${GID} user && \
   useradd -ms /bin/bash -l -u ${UID} -g ${GID} user
 
-USER user
 
 FROM golang
 
 WORKDIR /app
+RUN chown user:user /app
 
 COPY --chown=user:user go.mod .
 COPY --chown=user:user go.sum .
+USER user
 RUN go mod download
 
+USER root
 COPY --chown=user:user . .
-RUN go test -v ./...
+USER user
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN go test -v ./.../ | tee -a /app/test.log
+# RUN go test -v -failfast ./.../ -run SqlTemplate | tee -a /app/test.log

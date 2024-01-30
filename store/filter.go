@@ -3,7 +3,8 @@ package store
 import "strconv"
 
 const (
-	OP_EQ = iota
+	OP_NOP = iota
+	OP_EQ
 	OP_LIKE
 )
 

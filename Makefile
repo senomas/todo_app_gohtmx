@@ -6,5 +6,5 @@ export
 
 test: FORCE
 	docker build --progress=plain \
-		--build-arg UID=${UID} --build-arg GID=${GID} \
 		-t todo-app .
+	##	--build-arg UID=${UID} --build-arg GID=${GID} \

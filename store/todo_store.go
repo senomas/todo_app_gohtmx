@@ -9,6 +9,7 @@ type TodoStore interface {
 	DeleteTodoByID(ctx context.Context, id int64) error
 
 	GetTodoByID(ctx context.Context, id int64) (*Todo, error)
+	FindTodo(ctx context.Context, filter TodoFilter, skip int64, count int) ([]*Todo, int64, error)
 }
 
 var todoStoreImpl TodoStore

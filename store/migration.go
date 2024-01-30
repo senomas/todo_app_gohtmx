@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"crypto/sha512"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,8 +13,6 @@ import (
 	"path"
 	"strings"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type Migration struct {
@@ -57,7 +56,7 @@ func calcHash(filename string) (string, error) {
 }
 
 func Migrate(ctx context.Context) (int, error) {
-	if db, ok := ctx.Value(StoreCtxDB).(*sqlx.DB); ok {
+	if db, ok := ctx.Value(StoreCtxDB).(*sql.DB); ok {
 		migrationsImpl.Init(ctx)
 		mpath := os.Getenv("MIGRATIONS_PATH")
 		if mpath == "" {
@@ -68,7 +67,7 @@ func Migrate(ctx context.Context) (int, error) {
 			return -1, err
 		}
 
-		migrate := func(db *sqlx.DB, qry string) error {
+		migrate := func(db *sql.DB, qry string) error {
 			_, err := db.ExecContext(ctx, qry)
 			return err
 		}

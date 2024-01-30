@@ -2,10 +2,10 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/senomas/todo_app/store"
 )
 
@@ -19,7 +19,7 @@ func init() {
 type MigrationsImpl struct{}
 
 func (m *MigrationsImpl) Init(ctx context.Context) error {
-	if db, ok := ctx.Value(store.StoreCtxDB).(*sqlx.DB); ok {
+	if db, ok := ctx.Value(store.StoreCtxDB).(*sql.DB); ok {
 		qry := `
       CREATE TABLE IF NOT EXISTS _migration (
         id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,18 +41,18 @@ func (m *MigrationsImpl) Init(ctx context.Context) error {
 }
 
 func (i *MigrationsImpl) GetMigration(ctx context.Context, filename string) (*store.Migration, error) {
-	if db, ok := ctx.Value(store.StoreCtxDB).(*sqlx.DB); ok {
+	if db, ok := ctx.Value(store.StoreCtxDB).(*sql.DB); ok {
 		qry := `
-      SELECT id, filename, hash, success, result, timestamp FROM _migration WHERE filename = ?
+      SELECT id, filename, hash, success, result, timestamp FROM _migration WHERE filename = $1 
       ORDER BY timestamp DESC LIMIT 1`
-		rs, err := db.QueryxContext(ctx, qry, filename)
+		rs, err := db.QueryContext(ctx, qry, filename)
 		if err != nil {
 			return nil, err
 		}
 		defer rs.Close()
 		if rs.Next() {
 			var m store.Migration
-			err := rs.StructScan(&m)
+			err := rs.Scan(&m.ID, &m.Filename, &m.Hash, &m.Success, &m.Result, &m.Timestamp)
 			return &m, err
 		}
 		return nil, nil
@@ -61,12 +61,12 @@ func (i *MigrationsImpl) GetMigration(ctx context.Context, filename string) (*st
 }
 
 func (i *MigrationsImpl) AddMigration(ctx context.Context, m *store.Migration) error {
-	if db, ok := ctx.Value(store.StoreCtxDB).(*sqlx.DB); ok {
+	if db, ok := ctx.Value(store.StoreCtxDB).(*sql.DB); ok {
 		qry := `
       INSERT INTO _migration (filename, hash, success, result, timestamp)
-      VALUES (:filename, :hash, :success, :result, :timestamp)
+      VALUES ($1, $2, $3, $4, $5)
     `
-		rs, err := db.NamedExecContext(ctx, qry, m)
+		rs, err := db.ExecContext(ctx, qry, m.Filename, m.Hash, m.Success, m.Result, m.Timestamp)
 		if err != nil {
 			return err
 		}

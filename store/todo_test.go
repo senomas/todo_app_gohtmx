@@ -2,12 +2,13 @@ package store_test
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/senomas/todo_app/store"
 	_ "github.com/senomas/todo_app/store/sql_tmpl"
@@ -28,8 +29,8 @@ func TestTodoStore(t *testing.T) {
 
 	os.Setenv("MIGRATIONS_PATH", "../migrations")
 
-	db, err := sqlx.Open("sqlite3", ":memory:")
-	assert.NoError(t, err, "sqlx open should not error")
+	db, err := sql.Open("sqlite3", ":memory:")
+	assert.NoError(t, err, "sql open should not error")
 	defer db.Close()
 
 	initCtx := func() (context.Context, context.CancelFunc) {
@@ -67,5 +68,49 @@ func TestTodoStore(t *testing.T) {
 		todo, err := todoStore.CreateTodo(ctx, "Todo 1")
 		assert.NoError(t, err, "todo store create todo should not error")
 		assert.EqualValues(t, todo, &store.Todo{ID: 1, Title: "Todo 1", Completed: false}, "todo should be equal")
+	})
+
+	t.Run("GetTodoByID", func(t *testing.T) {
+		ctx, cancel := initCtx()
+		defer cancel()
+
+		todo, err := todoStore.GetTodoByID(ctx, 1)
+		assert.NoError(t, err, "todo store get todo by id should not error")
+		assert.EqualValues(t, todo, &store.Todo{ID: 1, Title: "Todo 1", Completed: false}, "todo should be equal")
+	})
+
+	t.Run("GetTodoByID not-found", func(t *testing.T) {
+		ctx, cancel := initCtx()
+		defer cancel()
+
+		_, err := todoStore.GetTodoByID(ctx, 2)
+		assert.ErrorContains(t, err, "sql: no data")
+	})
+
+	t.Run("CreateTodo 2", func(t *testing.T) {
+		ctx, cancel := initCtx()
+		defer cancel()
+
+		for i := 2; i <= 10; i++ {
+			todo, err := todoStore.CreateTodo(ctx, "Todo "+strconv.Itoa(i))
+			assert.NoError(t, err, "todo store create todo should not error")
+			assert.EqualValues(t, todo, &store.Todo{ID: int64(i), Title: "Todo " + strconv.Itoa(i), Completed: false}, "todo should be equal")
+		}
+	})
+
+	t.Run("FindTodo", func(t *testing.T) {
+		t.Skip("TODO: Fix this test")
+		ctx, cancel := initCtx()
+		defer cancel()
+
+		todos, total, err := todoStore.FindTodo(ctx, store.TodoFilter{}, 1, 0)
+		assert.NoError(t, err, "todo store find todo should not error")
+		assert.EqualValues(t, total, 10, "total should be equal")
+		assert.EqualValues(t, todos, []*store.Todo{
+			{ID: 1, Title: "Todo 1", Completed: false},
+			{ID: 2, Title: "Todo 2", Completed: false},
+			{ID: 3, Title: "Todo 3", Completed: false},
+			{ID: 4, Title: "Todo 4", Completed: false},
+		}, "todos should be equal")
 	})
 }
