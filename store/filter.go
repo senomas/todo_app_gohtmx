@@ -1,6 +1,8 @@
 package store
 
-import "strconv"
+import (
+	"strconv"
+)
 
 const (
 	OP_NOP = iota

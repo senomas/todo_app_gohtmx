@@ -31,8 +31,6 @@ func TestTodoStore(t *testing.T) {
 	todoStore := store.GetTodoStore()
 	assert.NotNil(t, todoStore, "todo store should not be nil")
 
-	os.Setenv("MIGRATIONS_PATH", "../migrations")
-
 	db, err := sql.Open("sqlite3", ":memory:")
 	assert.NoError(t, err, "sql open should not error")
 	defer db.Close()

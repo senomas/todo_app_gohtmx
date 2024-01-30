@@ -3,6 +3,7 @@ module github.com/senomas/todo_app
 go 1.21.6
 
 require (
+	github.com/a-h/templ v0.2.543
 	github.com/mattn/go-sqlite3 v1.14.19
 	github.com/stretchr/testify v1.8.4
 )

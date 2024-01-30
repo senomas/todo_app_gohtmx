@@ -10,18 +10,27 @@ RUN groupadd -g ${GID} user && \
 FROM golang
 
 WORKDIR /app
-RUN chown user:user /app
+RUN chown user:user /app && \
+  GOBIN=/usr/bin/ go install github.com/a-h/templ/cmd/templ@latest && \
+  chown -R user:user /go/pkg
+
+USER user
 
 COPY --chown=user:user go.mod .
 COPY --chown=user:user go.sum .
-USER user
+
 RUN go mod download
 
-USER root
 COPY --chown=user:user . .
-USER user
+
+RUN templ generate
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG TS
 RUN echo TEST ${TS} | tee -a /app/test.log && \
-  go test -v ./.../ | tee -a /app/test.log
-# RUN go test -v -failfast ./.../ -run SqlTemplate | tee -a /app/test.log
+  MIGRATIONS_PATH=/app/migrations \
+  go test -v ./store/.../ | tee -a /app/test.log
+
+RUN echo TEST ${TS} | tee -a /app/test.log && \
+  MIGRATIONS_PATH=/app/migrations \
+  go test -v ./handler/.../ | tee -a /app/test.log

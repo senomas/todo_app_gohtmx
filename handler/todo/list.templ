@@ -1,0 +1,21 @@
+package todo
+
+import (
+  "fmt"
+	"github.com/senomas/todo_app/store"
+)
+
+func writeURI(todo *store.Todo) templ.SafeURL {
+	return templ.URL(fmt.Sprintf("/todo/%d", todo.ID))
+}
+
+templ list(todos []*store.Todo) {
+  <h1>TODO List</h1>
+  <ul>
+  for _, todo := range todos {
+    <li>
+    <a href={writeURI(todo)}>{todo.Title}</a>
+    </li>
+  }
+  </ul>
+}
