@@ -1,21 +1,22 @@
 package todo
 
 import (
-  "fmt"
 	"github.com/senomas/todo_app/store"
 )
 
-func writeURI(todo *store.Todo) templ.SafeURL {
-	return templ.URL(fmt.Sprintf("/todo/%d", todo.ID))
-}
-
 templ list(todos []*store.Todo) {
-  <h1>TODO List</h1>
-  <ul>
+  <ul class="space-y-2">
   for _, todo := range todos {
-    <li>
-    <a href={writeURI(todo)}>{todo.Title}</a>
-    </li>
+      @listItem(todo)
   }
   </ul>
+}
+
+templ listItem(todo *store.Todo) {
+  <li class="flex items-center bg-white border rounded-md p-3">
+    <span>{todo.Title}</span>
+    <button class="ml-auto px-3 py-1 bg-red-500 text-white rounded-md">
+      Delete
+    </button>
+  </li>
 }

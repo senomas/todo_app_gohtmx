@@ -62,7 +62,6 @@ func TestTodoStore(t *testing.T) {
 		assert.NoError(t, err, "migrate should not error")
 		assert.EqualValues(t, 0, c, "migrate rows")
 	})
-
 	t.Run("CreateTodo", func(t *testing.T) {
 		ctx, cancel := initCtx()
 		defer cancel()

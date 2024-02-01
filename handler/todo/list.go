@@ -6,7 +6,7 @@ import (
 	"github.com/senomas/todo_app/store"
 )
 
-func ListHandler(w http.ResponseWriter, r *http.Request) {
+func ListTodoHandler(w http.ResponseWriter, r *http.Request) {
 	todoStore := store.GetTodoStore()
 	rqry := r.URL.Query()
 	filter := store.TodoFilter{}

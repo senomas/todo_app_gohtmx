@@ -7,7 +7,7 @@ RUN groupadd -g ${GID} user && \
   useradd -ms /bin/bash -l -u ${UID} -g ${GID} user
 
 
-FROM golang
+FROM golang as builder
 
 WORKDIR /app
 RUN chown user:user /app && \
@@ -26,11 +26,27 @@ COPY --chown=user:user . .
 RUN templ generate
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ARG TS
-RUN echo TEST ${TS} | tee -a /app/test.log && \
-  MIGRATIONS_PATH=/app/migrations \
+RUN MIGRATIONS_PATH=/app/migrations \
   go test -v ./store/.../ | tee -a /app/test.log
 
-RUN echo TEST ${TS} | tee -a /app/test.log && \
-  MIGRATIONS_PATH=/app/migrations \
+RUN MIGRATIONS_PATH=/app/migrations \
   go test -v ./handler/.../ | tee -a /app/test.log
+
+RUN go build -o /app/todo_app .
+
+FROM debian:bookworm-slim
+
+ARG UID=1000
+ARG GID=1000
+
+RUN groupadd -g ${GID} user && \
+  useradd -ms /bin/bash -l -u ${UID} -g ${GID} user
+
+USER user
+
+COPY --chown=user:user --from=builder /app/todo_app /app/todo_app
+COPY --chown=user:user migrations /app/migrations
+COPY --chown=user:user assets /app/assets
+
+EXPOSE 8080
+ENTRYPOINT ["/app/todo_app"]

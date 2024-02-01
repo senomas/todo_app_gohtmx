@@ -9,8 +9,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -60,8 +62,14 @@ func Migrate(ctx context.Context) (int, error) {
 		migrationsImpl.Init(ctx)
 		mpath := os.Getenv("MIGRATIONS_PATH")
 		if mpath == "" {
-			mpath = "migrations"
+			ex, err := os.Executable()
+			if err != nil {
+				panic(err)
+			}
+			path := filepath.Dir(ex)
+			mpath = filepath.Join(path, "migrations")
 		}
+		slog.Debug("MIGRATIONS_PATH", "path", mpath)
 		files, err := os.ReadDir(mpath)
 		if err != nil {
 			return -1, err

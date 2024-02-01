@@ -4,6 +4,12 @@ export
 
 .PHONY: FORCE
 
+run: test FORCE
+	docker run --rm -it \
+		-v ${PWD}/assets:/app/assets \
+		-p 8080:8080 \
+		todo-app
+
 test: build FORCE
 	docker build --progress=plain \
 		--build-arg TS=$(shell date +%Y%m%d%H%M%S) \
