@@ -4,9 +4,10 @@ go 1.21.6
 
 require (
 	github.com/a-h/templ v0.2.543
+	github.com/google/uuid v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.19
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/net v0.19.0
+	golang.org/x/net v0.17.0
 )
 
 require (

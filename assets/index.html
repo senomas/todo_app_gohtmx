@@ -8,14 +8,14 @@
       rel="stylesheet"
     />
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
     <title>Todo App</title>
   </head>
   <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-8">
       <h1 class="text-3xl font-semibold mb-6">Todo App</h1>
 
-      <!-- Todo input form -->
-      <form class="mb-4">
+      <form id="addTodo" class="mb-4">
         <input
           type="text"
           name="title"
@@ -27,6 +27,7 @@
           type="submit"
           hx-post="/api/todo"
           hx-target="#todo_list"
+          hx-on::after-request="if (event.detail.failed) alert(event.detail.xhr.responseText); else document.getElementById('addTodo').reset()"
           class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
         >
           Add Todo

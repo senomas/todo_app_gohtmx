@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -11,13 +12,15 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/senomas/todo_app/handler"
-	"github.com/senomas/todo_app/handler/todo"
 	"github.com/senomas/todo_app/store"
 	_ "github.com/senomas/todo_app/store/sql_tmpl"
 	_ "github.com/senomas/todo_app/store/sql_tmpl/sqlite"
 )
 
 func main() {
+	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	slog.SetDefault(log)
+
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
@@ -48,10 +51,7 @@ func main() {
 		http.ServeFile(w, r, assets+"/index.html")
 	})
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(assets))))
-	http.HandleFunc("/api/todo", handler.Handle(handler.Mux{
-		Get:  todo.ListTodoHandler,
-		Post: todo.CreateTodoHandler,
-	}))
+	http.HandleFunc("/api/todo", handler.ListTodoHandler)
 	server := &http.Server{Addr: ":8080", BaseContext: func(net.Listener) context.Context {
 		return ctx
 	}}

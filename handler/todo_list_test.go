@@ -1,4 +1,4 @@
-package todo_test
+package handler_test
 
 import (
 	"bytes"
@@ -11,11 +11,12 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/senomas/todo_app/handler/todo"
+	"github.com/senomas/todo_app/handler"
 	"github.com/senomas/todo_app/store"
 	_ "github.com/senomas/todo_app/store/sql_tmpl"
 	_ "github.com/senomas/todo_app/store/sql_tmpl/sqlite"
@@ -76,7 +77,7 @@ func TestListHandler(t *testing.T) {
 		)
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(todo.CreateTodoHandler)
+		handler := http.HandlerFunc(handler.ListTodoHandler)
 
 		handler.ServeHTTP(rr, req)
 
@@ -84,7 +85,7 @@ func TestListHandler(t *testing.T) {
 
 		doc, err := html.Parse(rr.Body)
 		assert.NoError(t, err, "parse html should not error")
-		removeClassAttribute(doc)
+		removeAttribute(doc)
 		var buf bytes.Buffer
 		err = html.Render(&buf, doc)
 		assert.NoError(t, err, "render html should not error")
@@ -108,7 +109,7 @@ func TestListHandler(t *testing.T) {
 		)
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(todo.ListTodoHandler)
+		handler := http.HandlerFunc(handler.ListTodoHandler)
 
 		handler.ServeHTTP(rr, req)
 
@@ -116,7 +117,7 @@ func TestListHandler(t *testing.T) {
 
 		doc, err := html.Parse(rr.Body)
 		assert.NoError(t, err, "parse html should not error")
-		removeClassAttribute(doc)
+		removeAttribute(doc)
 		var buf bytes.Buffer
 		err = html.Render(&buf, doc)
 		assert.NoError(t, err, "render html should not error")
@@ -140,7 +141,7 @@ func TestListHandler(t *testing.T) {
 		)
 
 		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(todo.ListTodoHandler)
+		handler := http.HandlerFunc(handler.ListTodoHandler)
 
 		handler.ServeHTTP(rr, req)
 
@@ -148,7 +149,7 @@ func TestListHandler(t *testing.T) {
 
 		doc, err := html.Parse(rr.Body)
 		assert.NoError(t, err, "parse html should not error")
-		removeClassAttribute(doc)
+		removeAttribute(doc)
 		var buf bytes.Buffer
 		err = html.Render(&buf, doc)
 		assert.NoError(t, err, "render html should not error")
@@ -161,21 +162,20 @@ func TestListHandler(t *testing.T) {
 	})
 }
 
-func removeClassAttribute(node *html.Node) {
+func removeAttribute(node *html.Node) {
 	if node.Type == html.ElementNode {
-		// Loop through the attributes of the HTML element
-		for i, attr := range node.Attr {
-			// Check if the attribute is the class attribute
-			if attr.Key == "class" {
-				// Remove the class attribute by modifying the attributes slice
-				node.Attr = append(node.Attr[:i], node.Attr[i+1:]...)
-				break
+		res := []html.Attribute{}
+		for _, attr := range node.Attr {
+			if attr.Key == "class" || strings.HasPrefix(attr.Key, "hx-") {
+			} else {
+				res = append(res, attr)
 			}
 		}
+		node.Attr = res
 	}
 
 	// Recursively process child nodes
 	for child := node.FirstChild; child != nil; child = child.NextSibling {
-		removeClassAttribute(child)
+		removeAttribute(child)
 	}
 }

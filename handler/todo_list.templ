@@ -1,18 +1,18 @@
-package todo
+package handler
 
 import (
 	"github.com/senomas/todo_app/store"
 )
 
-templ list(todos []*store.Todo) {
+templ ListTodo(todos []*store.Todo) {
   <ul class="space-y-2">
   for _, todo := range todos {
-      @listItem(todo)
+      @ListTodoItem(todo)
   }
   </ul>
 }
 
-templ listItem(todo *store.Todo) {
+templ ListTodoItem(todo *store.Todo) {
   <li class="flex items-center bg-white border rounded-md p-3">
     <span>{todo.Title}</span>
     <button class="ml-auto px-3 py-1 bg-red-500 text-white rounded-md">
@@ -20,3 +20,4 @@ templ listItem(todo *store.Todo) {
     </button>
   </li>
 }
+

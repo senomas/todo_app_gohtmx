@@ -8,7 +8,10 @@ import (
 
 type key int
 
-const StoreCtxDB key = iota
+const (
+	StoreCtxDB key = iota
+	StoreCtxCookie
+)
 
 var ErrNoData = errors.New("sql: no data")
 
