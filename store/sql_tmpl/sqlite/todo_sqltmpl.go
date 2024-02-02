@@ -21,7 +21,7 @@ func (s *TodoStoreTemplateImpl) InsertTodo(t *store.Todo) (string, []any) {
 
 // UpdateTodo implements sql_tmpl.TodoStoreTemplate.
 func (s *TodoStoreTemplateImpl) UpdateTodo(t *store.Todo) (string, []any) {
-	return `UPDATE todo SET title = $2, completed = $3 WHERE id = $1`, []any{t.ID, t.Title, t.Completed}
+	return `UPDATE todo SET title = $1, completed = $2 WHERE id = $3`, []any{t.Title, t.Completed, t.ID}
 }
 
 // DeleteTodoByID implements sql_tmpl.TodoStoreTemplate.

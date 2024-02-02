@@ -52,6 +52,8 @@ func main() {
 	})
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(assets))))
 	http.HandleFunc("/api/todo", handler.ListTodoHandler)
+	http.HandleFunc("/api/todo/", handler.ListTodoHandler)
+	http.HandleFunc("/api/todo/count", handler.ListTodoCountHandler)
 	server := &http.Server{Addr: ":8080", BaseContext: func(net.Listener) context.Context {
 		return ctx
 	}}

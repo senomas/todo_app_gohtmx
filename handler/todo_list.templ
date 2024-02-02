@@ -4,20 +4,65 @@ import (
 	"github.com/senomas/todo_app/store"
 )
 
-templ ListTodo(todos []*store.Todo) {
+templ ListTodo(todos []*store.Todo, id int64) {
   <ul class="space-y-2">
   for _, todo := range todos {
+    if todo.ID == id {
+      @ListTodoItemEdit(todo)
+    } else {
       @ListTodoItem(todo)
+    }
   }
   </ul>
 }
 
 templ ListTodoItem(todo *store.Todo) {
-  <li class="flex items-center bg-white border rounded-md p-3">
+  <li 
+    hx-get={f("/api/todo/%d", todo.ID)}
+    hx-target="#todo_list"
+    class="flex items-center bg-white border rounded-md p-3"
+  >
     <span>{todo.Title}</span>
-    <button class="ml-auto px-3 py-1 bg-red-500 text-white rounded-md">
+    <button 
+      hx-delete={f("/api/todo/%d", todo.ID)}
+      hx-target="#todo_list"
+      hx-on::after-request="if (event.detail.failed) alert(event.detail.xhr.responseText)"
+      class="ml-auto px-3 py-1 bg-red-500 text-white rounded-md"
+    >
       Delete
     </button>
   </li>
 }
 
+templ ListTodoItemEdit(todo *store.Todo) {
+  <li class="items-center bg-white border rounded-md p-3">
+    <form id="addTodo" class="flex">
+      <span class="flex-grow">
+        <input type="hidden" name="id" value={fv(todo.ID)} />
+        <input
+          type="text"
+          name="title"
+          class="w-full px-4 py-2 border rounded-md"
+          value={todo.Title}
+          required
+        />
+      </span>
+      <button 
+        hx-post="/api/todo"
+        hx-target="#todo_list"
+        hx-on::after-request="if (event.detail.failed) alert(event.detail.xhr.responseText)"
+        class="ml-2 px-3 py-1 bg-blue-500 text-white rounded-md"
+      >
+        Save
+      </button>
+      <button 
+        hx-get="/api/todo"
+        hx-target="#todo_list"
+        hx-on::after-request="if (event.detail.failed) alert(event.detail.xhr.responseText)"
+        class="ml-2 px-3 py-1 bg-red-500 text-white rounded-md"
+      >
+        Cancel
+      </button>
+    </form>
+  </li>
+}

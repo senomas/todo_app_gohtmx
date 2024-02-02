@@ -13,7 +13,13 @@
   </head>
   <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-8">
-      <h1 class="text-3xl font-semibold mb-6">Todo App</h1>
+      <h1 class="text-3xl font-semibold mb-6">
+        Todo App
+        <span
+          hx-get="/api/todo/count"
+          hx-trigger="load, new-todo from:body, delete-todo from:body"
+        ></span>
+      </h1>
 
       <form id="addTodo" class="mb-4">
         <input

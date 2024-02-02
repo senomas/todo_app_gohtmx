@@ -68,7 +68,8 @@ func (t *TodoStoreTmpl) UpdateTodo(ctx context.Context, todo store.Todo) error {
 	if db, ok := ctx.Value(store.StoreCtxDB).(*sql.DB); ok {
 		qry, args := todoStoreTemplateImpl.UpdateTodo(&todo)
 		slog.Debug("UpdateTodo", "qry", qry, "args", &store.JsonLogValue{V: args})
-		db.ExecContext(ctx, qry, args...)
+		_, err := db.ExecContext(ctx, qry, args...)
+		return err
 	}
 	return errCtxNoDB
 }
@@ -78,7 +79,8 @@ func (t *TodoStoreTmpl) DeleteTodoByID(ctx context.Context, id int64) error {
 	if db, ok := ctx.Value(store.StoreCtxDB).(*sql.DB); ok {
 		qry, args := todoStoreTemplateImpl.DeleteTodoByID(id)
 		slog.Debug("DeleteTodoByID", "qry", qry, "args", &store.JsonLogValue{V: args})
-		db.ExecContext(ctx, qry, args...)
+		_, err := db.ExecContext(ctx, qry, args...)
+		return err
 	}
 	return errCtxNoDB
 }

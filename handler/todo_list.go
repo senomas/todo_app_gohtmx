@@ -1,24 +1,57 @@
 package handler
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/senomas/todo_app/store"
 )
 
+func ListTodoCountHandler(w http.ResponseWriter, r *http.Request) {
+	todoStore := store.GetTodoStore()
+	_, count, err := todoStore.FindTodo(r.Context(), store.TodoFilter{}, 0, 0)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "%d", count)
+}
+
 func ListTodoHandler(w http.ResponseWriter, r *http.Request) {
 	todoStore := store.GetTodoStore()
-	if r.Method == "POST" {
+	spath := strings.Split(r.URL.EscapedPath(), "/")
+	id, idErr := strconv.ParseInt(spath[len(spath)-1], 10, 64)
+	if idErr != nil {
+		id = -1
+	}
+	switch r.Method {
+	case "POST":
 		err := r.ParseForm()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		title := r.Form["title"][0]
-		slog.Info("CreateTodoHandler", "title", title)
+		v := r.Form["id"]
+		var uid int64 = -1
+		if len(v) == 1 {
+			uid, err = strconv.ParseInt(v[0], 10, 64)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+		}
+
+		var title string
+		v = r.Form["title"]
+		if len(v) == 1 {
+			title = v[0]
+		} else {
+			http.Error(w, "title should not empty", http.StatusBadRequest)
+			return
+		}
 		if title == "" {
 			http.Error(w, "title should not empty", http.StatusBadRequest)
 			return
@@ -27,11 +60,37 @@ func ListTodoHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "title should not contain xxx", http.StatusBadRequest)
 			return
 		}
-		_, err = todoStore.CreateTodo(r.Context(), title)
+		if uid == -1 {
+			slog.Debug("CreateTodoHandler", "title", title)
+			_, err = todoStore.CreateTodo(r.Context(), title)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("HX-Trigger", "new-todo")
+		} else {
+			slog.Debug("UpdateTodoHandler", "id", uid, "title", title)
+			err = todoStore.UpdateTodo(r.Context(), store.Todo{
+				ID:    uid,
+				Title: title,
+			})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("HX-Trigger", "update-todo")
+		}
+	case "DELETE":
+		if idErr != nil {
+			http.Error(w, idErr.Error(), http.StatusInternalServerError)
+			return
+		}
+		err := todoStore.DeleteTodoByID(r.Context(), id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		w.Header().Set("HX-Trigger", "delete-todo")
 	}
 
 	rqry := r.URL.Query()
@@ -43,6 +102,6 @@ func ListTodoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	component := ListTodo(todos)
+	component := ListTodo(todos, id)
 	component.Render(r.Context(), w)
 }
