@@ -27,10 +27,7 @@ RUN templ generate
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN MIGRATIONS_PATH=/app/migrations \
-  go test -v ./store/.../ | tee -a /app/test.log
-
-RUN MIGRATIONS_PATH=/app/migrations \
-  go test -v ./handler/.../ | tee -a /app/test.log
+  go test -v ./.../ | tee -a /app/test.log
 
 RUN go build -o /app/todo_app .
 

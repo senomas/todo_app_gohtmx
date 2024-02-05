@@ -10,6 +10,10 @@ github.com/mattn/go-sqlite3 v1.14.19 h1:fhGleo2h1p8tVChob4I9HpmVFIAkKGpiukdrgQbW
 github.com/mattn/go-sqlite3 v1.14.19/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/senomas/gosvc_store v0.0.0-20240204024653-c868e7b33423 h1:LxH6oFNrSw+aYhw8A3RXlfuV2ZD/RmOAVG4mZ92ockU=
+github.com/senomas/gosvc_store v0.0.0-20240204024653-c868e7b33423/go.mod h1:8+ZFx5NgiEbAVSMfeftcIkOo5XrLmhfi5wUwI5YHuKo=
+github.com/senomas/gosvc_todo v0.0.0-20240204044839-28a3d62f6bad h1:ZUo822gb+Nj7Mlni+EFSDBtgIUdo0Ue23S/56H59l9Q=
+github.com/senomas/gosvc_todo v0.0.0-20240204044839-28a3d62f6bad/go.mod h1:8crz24TFm/eqLnNmY86GHXmzryEIS2/PPj/EOwb3AQU=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 golang.org/x/net v0.17.0 h1:pVaXccu2ozPjCXewfr1S7xza/zcXTity9cCdXQYSjIM=

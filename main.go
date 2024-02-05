@@ -11,10 +11,11 @@ import (
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/senomas/gosvc_store/store"
+	"github.com/senomas/gosvc_todo/todo_store"
+	_ "github.com/senomas/gosvc_todo/todo_store/sql_tmpl"
+	_ "github.com/senomas/gosvc_todo/todo_store/sql_tmpl/sqlite"
 	"github.com/senomas/todo_app/handler"
-	"github.com/senomas/todo_app/store"
-	_ "github.com/senomas/todo_app/store/sql_tmpl"
-	_ "github.com/senomas/todo_app/store/sql_tmpl/sqlite"
 )
 
 func main() {
@@ -39,7 +40,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	todoStore := store.GetTodoStore()
+	todoStore := todo_store.GetTodoStore()
 	for i := 1; i <= 4; i++ {
 		_, err := todoStore.CreateTodo(ctx, "Todo "+strconv.Itoa(i))
 		if err != nil {

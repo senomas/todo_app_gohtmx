@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/senomas/todo_app/store"
+	"github.com/senomas/gosvc_todo/todo_store"
 )
 
 func ListTodoCountHandler(w http.ResponseWriter, r *http.Request) {
-	todoStore := store.GetTodoStore()
-	_, count, err := todoStore.FindTodo(r.Context(), store.TodoFilter{}, 0, 0)
+	todoStore := todo_store.GetTodoStore()
+	_, count, err := todoStore.FindTodo(r.Context(), todo_store.TodoFilter{}, 0, 0)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -21,7 +21,7 @@ func ListTodoCountHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListTodoHandler(w http.ResponseWriter, r *http.Request) {
-	todoStore := store.GetTodoStore()
+	todoStore := todo_store.GetTodoStore()
 	spath := strings.Split(r.URL.EscapedPath(), "/")
 	id, idErr := strconv.ParseInt(spath[len(spath)-1], 10, 64)
 	if idErr != nil {
@@ -70,7 +70,7 @@ func ListTodoHandler(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("HX-Trigger", "new-todo")
 		} else {
 			slog.Debug("UpdateTodoHandler", "id", uid, "title", title)
-			err = todoStore.UpdateTodo(r.Context(), store.Todo{
+			err = todoStore.UpdateTodo(r.Context(), todo_store.Todo{
 				ID:    uid,
 				Title: title,
 			})
@@ -94,7 +94,7 @@ func ListTodoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rqry := r.URL.Query()
-	filter := store.TodoFilter{}
+	filter := todo_store.TodoFilter{}
 	filter.ID.Set("id", rqry)
 	filter.Title.Set("title", rqry)
 	todos, _, err := todoStore.FindTodo(r.Context(), filter, 0, 0)

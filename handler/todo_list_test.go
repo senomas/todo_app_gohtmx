@@ -17,11 +17,14 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/senomas/todo_app/handler"
-	"github.com/senomas/todo_app/store"
-	_ "github.com/senomas/todo_app/store/sql_tmpl"
-	_ "github.com/senomas/todo_app/store/sql_tmpl/sqlite"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html"
+
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/senomas/gosvc_store/store"
+	"github.com/senomas/gosvc_todo/todo_store"
+	_ "github.com/senomas/gosvc_todo/todo_store/sql_tmpl"
+	_ "github.com/senomas/gosvc_todo/todo_store/sql_tmpl/sqlite"
 )
 
 func TestListHandler(t *testing.T) {
@@ -29,7 +32,7 @@ func TestListHandler(t *testing.T) {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	slog.SetDefault(log)
 
-	todoStore := store.GetTodoStore()
+	todoStore := todo_store.GetTodoStore()
 	assert.NotNil(t, todoStore, "todo store should not be nil")
 
 	db, err := sql.Open("sqlite3", ":memory:")
@@ -62,7 +65,9 @@ func TestListHandler(t *testing.T) {
 		for i := 1; i <= 4; i++ {
 			todo, err := todoStore.CreateTodo(ctx, "Todo "+strconv.Itoa(i))
 			assert.NoError(t, err, "todo store create todo should not error")
-			assert.EqualValues(t, todo, &store.Todo{ID: int64(i), Title: "Todo " + strconv.Itoa(i), Completed: false}, "todo should be equal")
+			assert.EqualValues(t, todo, &todo_store.Todo{
+				ID: int64(i), Title: "Todo " + strconv.Itoa(i), Completed: false,
+			}, "todo should be equal")
 		}
 	})
 
