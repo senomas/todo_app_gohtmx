@@ -1,4 +1,4 @@
-FROM golang:1.21.6-bookworm as golang
+FROM docker.senomas.com/golang:1.21.6-bookworm as golang
 
 ARG UID=1000
 ARG GID=1000
@@ -25,13 +25,15 @@ COPY --chown=user:user . .
 
 RUN templ generate
 
+ARG TEST=0
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN MIGRATIONS_PATH=/app/migrations \
-  go test -v ./.../ | tee -a /app/test.log
+RUN if [ ! ${TEST} = 0 ]; then MIGRATIONS_PATH=/app/migrations \
+  go test -v ./.../ | tee -a /app/test.log ; fi
 
 RUN go build -o /app/todo_app .
 
-FROM debian:bookworm-slim
+FROM docker.senomas.com/debian:bookworm-slim
 
 ARG UID=1000
 ARG GID=1000

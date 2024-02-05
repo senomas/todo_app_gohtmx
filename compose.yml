@@ -1,9 +1,24 @@
 version: "3.8"
 
 services:
-  gobuild:
-    image: gobuild
-    user: "${UID}:${GID}"
-    volumes:
-      - .:/work
-    working_dir: /work
+  todo_app:
+    image: todo_app
+    build: .
+    ports:
+      - 8080:8080
+    develop:
+      watch:
+        - action: sync
+          path: ./assets
+          target: /app/assets
+        - action: sync+restart
+          path: ./migrations
+          target: /app/migrations
+        - action: rebuild
+          path: ./handler
+        - action: rebuild
+          path: ./go.mod
+        - action: rebuild
+          path: ./go.sum
+        - action: rebuild
+          path: ./Dockerfile
