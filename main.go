@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/senomas/gosvc_account/account_store"
 	"github.com/senomas/gosvc_store/store"
 	"github.com/senomas/gosvc_todo/todo_store"
 	_ "github.com/senomas/gosvc_todo/todo_store/sql_tmpl"
@@ -40,6 +41,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	accountStore := account_store.GetAccountStore()
+	_, err = accountStore.CreateAppUser(ctx, "admin", "dodol123")
+	if err != nil {
+		panic(err)
+	}
+	_, err = accountStore.CreateAppUser(ctx, "guest", "dodol123")
+	if err != nil {
+		panic(err)
+	}
+
 	todoStore := todo_store.GetTodoStore()
 	for i := 1; i <= 4; i++ {
 		_, err := todoStore.CreateTodo(ctx, "Todo "+strconv.Itoa(i))

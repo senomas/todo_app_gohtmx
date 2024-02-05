@@ -15,7 +15,6 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/senomas/todo_app/handler"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/html"
@@ -52,7 +51,7 @@ func TestListHandler(t *testing.T) {
 
 		c, err := store.Migrate(ctx)
 		assert.NoError(t, err, "migrate should not error")
-		assert.EqualValues(t, 1, c, "migrate rows")
+		assert.EqualValues(t, 2, c, "migrate rows")
 
 		err = todoStore.Init(ctx)
 		assert.NoError(t, err, "todo store init should not error")
