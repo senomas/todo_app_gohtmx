@@ -59,7 +59,7 @@ templ ListTodoItemEdit(todo *todo_store.Todo) {
         hx-get="/api/todo"
         hx-target="#todo_list"
         hx-on::after-request="if (event.detail.failed) alert(event.detail.xhr.responseText)"
-        class="ml-2 px-3 py-1 bg-red-500 text-white rounded-md"
+        class="ml-2 px-3 py-1 bg-yellow-500 text-white rounded-md"
       >
         Cancel
       </button>

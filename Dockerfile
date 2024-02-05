@@ -28,7 +28,7 @@ RUN templ generate
 ARG TEST=0
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN if [ ! ${TEST} = 0 ]; then MIGRATIONS_PATH=/app/migrations \
+RUN if [ ! "${TEST}" = "0" ]; then MIGRATIONS_PATH=/app/migrations \
   go test -v ./.../ | tee -a /app/test.log ; fi
 
 RUN go build -o /app/todo_app .

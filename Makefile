@@ -4,8 +4,11 @@ export
 
 .PHONY: FORCE
 
-run: build FORCE
+run: test FORCE
 	UID=${UID} GID=${GID} docker compose watch
+
+test: build FORCE
+	UID=${UID} GID=${GID} TEST=1 docker compose build
 
 build: templ
 

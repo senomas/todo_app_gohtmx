@@ -3,7 +3,12 @@ version: "3.8"
 services:
   todo_app:
     image: todo_app
-    build: .
+    build:
+      context: .
+      args:
+        - UID=${UID}
+        - GID=${GID}
+        - TEST=${TEST}
     ports:
       - 8080:8080
     develop:
