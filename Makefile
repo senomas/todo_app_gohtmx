@@ -1,14 +1,15 @@
 UID=$(shell id -u)
 GID=$(shell id -g)
+BUILDKIT_PROGRESS=plain
 export
 
 .PHONY: FORCE
 
 run: test FORCE
-	UID=${UID} GID=${GID} docker compose watch
+	docker compose watch
 
 test: build FORCE
-	UID=${UID} GID=${GID} TEST=1 docker compose build
+	TEST=1 docker compose build
 
 build: templ
 
